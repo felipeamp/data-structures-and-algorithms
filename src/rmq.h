@@ -16,23 +16,24 @@ namespace rmq {
 
 template <typename T>
 class Naive {
-public:
+ public:
   explicit Naive(const std::vector<T> &vec) {
     vec_ = std::vector<T>(vec.begin(), vec.end());
   }
 
   size_t query(size_t start, size_t end) {
-    return std::min_element(vec_.cbegin() + start, vec_.cbegin() + end) - vec_.cbegin();
+    return std::min_element(vec_.cbegin() + start,
+                            vec_.cbegin() + end) - vec_.cbegin();
   }
 
-private:
+ private:
   std::vector<T> vec_;
 };
 
 
 template <typename T>
 class Sparse {
-public:
+ public:
   explicit Sparse(const std::vector<T> &vec) {
     vec_ = std::vector<T>(vec.begin(), vec.end());
 
@@ -45,7 +46,9 @@ public:
                       block_size_.size() - curr_index,
                       curr_block_size);
       } else {
-        std::fill_n(block_size_.begin() + curr_index, curr_block_size, curr_block_size);
+        std::fill_n(block_size_.begin() + curr_index,
+                    curr_block_size,
+                    curr_block_size);
       }
       curr_index += curr_block_size;
       curr_block_size *= 2;
@@ -80,7 +83,7 @@ public:
       return min_index_2;
   }
 
-private:
+ private:
   std::vector<std::unordered_map<size_t, size_t>> block_min_;
   std::vector<size_t> block_size_;
   std::vector<T> vec_;
@@ -88,7 +91,7 @@ private:
 
 template <typename T>
 class Hybrid {
-public:
+ public:
   explicit Hybrid(const std::vector<T> &vec) {
     vec_ = std::vector<T>(vec.begin(), vec.end());
 
@@ -102,11 +105,13 @@ public:
     for (size_t block_num = 0; block_num < num_blocks - 1; ++block_num) {
       auto block_start_it = vec_.begin() + block_num * block_size_;
       auto block_end_it = vec_.begin() + (block_num + 1) * block_size_;
-      block_min_.push_back(std::min_element(block_start_it, block_end_it) - vec_.begin());
+      block_min_.push_back(
+        std::min_element(block_start_it, block_end_it) - vec_.begin());
       high_blocks[block_num] = vec_[block_min_[block_num]];
     }
     block_min_.push_back(
-      std::min_element(vec_.begin() + (num_blocks - 1) * block_size_, vec_.end()) - vec_.begin());
+      std::min_element(vec_.begin() + (num_blocks - 1) * block_size_,
+                       vec_.end()) - vec_.begin());
     high_blocks[num_blocks - 1] = vec_[block_min_[num_blocks - 1]];
 
     rmq_high_blocks_ = std::make_unique<rmq::Sparse<T>>(high_blocks);
@@ -116,11 +121,15 @@ public:
     size_t start_block_num = start / block_size_;
     size_t end_block_num = end / block_size_;
     if (end_block_num <= start_block_num + 1) {
-      return std::min_element(vec_.begin() + start, vec_.begin() + end) - vec_.begin();
+      return std::min_element(vec_.begin() + start,
+                              vec_.begin() + end) - vec_.begin();
     } else {
-      size_t min_index_high = rmq_high_blocks_->query(start_block_num + 1, end_block_num);
+      size_t min_index_high = rmq_high_blocks_->query(start_block_num + 1,
+                                                      end_block_num);
       size_t min_index = block_min_[min_index_high];
-      for (size_t index = start; index < (start_block_num + 1) * block_size_; ++index) {
+      for (size_t index = start;
+           index < (start_block_num + 1) * block_size_;
+           ++index) {
         if (vec_[index] < vec_[min_index]) {
           min_index = index;
         }
@@ -134,7 +143,7 @@ public:
     }
   }
 
-private:
+ private:
   size_t block_size_;
   std::unique_ptr<rmq::Sparse<T>> rmq_high_blocks_;
   std::vector<size_t> block_min_;
