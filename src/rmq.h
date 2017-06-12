@@ -36,6 +36,21 @@ public:
   explicit Sparse(const std::vector<T> &vec) {
     vec_ = std::vector<T>(vec.begin(), vec.end());
 
+    block_size_ = std::vector<size_t>(vec_.size() + 1, 1);
+    size_t curr_index = 1;
+    size_t curr_block_size = 1;
+    do {
+      if (curr_index + curr_block_size > block_size_.size()) {
+          std::fill_n(block_size_.begin() + curr_index,
+                      block_size_.size() - curr_index,
+                      curr_block_size);
+      } else {
+        std::fill_n(block_size_.begin() + curr_index, curr_block_size, curr_block_size);
+      }
+      curr_index += curr_block_size;
+      curr_block_size *= 2;
+    } while (curr_index < block_size_.size());
+
     block_min_ = std::vector<std::unordered_map<size_t, size_t>>(vec_.size());
     block_min_.reserve(vec_.size());
     for (size_t index = 0; index < vec_.size(); ++index) {
@@ -56,9 +71,9 @@ public:
   }
 
   size_t query(size_t start, size_t end) {
-    size_t block_size = (end - start + 1) / 2;
-    size_t min_index_1 = block_min_[start][block_size];
-    size_t min_index_2 = block_min_[end - block_size][block_size];
+    size_t curr_block_size = block_size_[end - start];
+    size_t min_index_1 = block_min_[start][curr_block_size];
+    size_t min_index_2 = block_min_[end - curr_block_size][curr_block_size];
     if (vec_[min_index_1] <= vec_[min_index_2])
       return min_index_1;
     else
@@ -67,6 +82,7 @@ public:
 
 private:
   std::vector<std::unordered_map<size_t, size_t>> block_min_;
+  std::vector<size_t> block_size_;
   std::vector<T> vec_;
 };
 
