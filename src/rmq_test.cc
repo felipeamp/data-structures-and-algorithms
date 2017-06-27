@@ -73,15 +73,21 @@ TEST(RMQ, HybridQuery) {
   ASSERT_EQ(2, hybrid.query(2, v.size()));
 }
 
-// TEST(RMQ, FischerHeun) {
-//   std::vector<double> v = {1., 2., 3., 4.};
-  // rmq::FischerHeun<double> fischer_heun(v);
-  // ASSERT_EQ(0, fischer_heun.query(0, v.size()));
-  // ASSERT_EQ(0, fischer_heun.query(0, 2));
-  // ASSERT_EQ(1, fischer_heun.query(1, v.size()));
-  // ASSERT_EQ(2, fischer_heun.query(2, v.size()));
-// }
+TEST(RMQ, FischerHeunPreProcessing) {
+  std::vector<double> v = {1., 2., 3., 4.};
 
+  rmq::FischerHeun<double> fischer_heun(v);
+}
+
+TEST(RMQ, FischerHeunQuery) {
+  std::vector<double> v = {1., 2., 3., 4.};
+
+  rmq::FischerHeun<double> fischer_heun(v);
+  ASSERT_EQ(0, fischer_heun.query(0, v.size()));
+  ASSERT_EQ(0, fischer_heun.query(0, 2));
+  ASSERT_EQ(1, fischer_heun.query(1, v.size()));
+  ASSERT_EQ(2, fischer_heun.query(2, v.size()));
+}
 }  // namespace
 
 int main(int argc, char** argv) {
