@@ -24,6 +24,23 @@ TEST(RMQ, NaiveQuery) {
   ASSERT_EQ(2, naive.query(2, v.size()));
 }
 
+
+TEST(RMQ, ExactPreProcessing) {
+  std::vector<double> v = {1., 2., 3., 4.};
+
+  rmq::Exact<double> exact(v);
+}
+
+TEST(RMQ, ExactQuery) {
+  std::vector<double> v = {1., 2., 3., 4.};
+
+  rmq::Exact<double> exact(v);
+  ASSERT_EQ(0, exact.query(0, v.size()));
+  ASSERT_EQ(0, exact.query(0, 2));
+  ASSERT_EQ(1, exact.query(1, v.size()));
+  ASSERT_EQ(2, exact.query(2, v.size()));
+}
+
 TEST(RMQ, SparsePreProcessing) {
   std::vector<double> v = {1., 2., 3., 4.};
 
