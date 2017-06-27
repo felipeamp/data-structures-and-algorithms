@@ -123,6 +123,9 @@ class Hybrid {
     vec_ = std::vector<T>(vec.begin(), vec.end());
 
     block_size_ = std::floor(std::log2(vec_.size()));
+    if (block_size_ == 0) {
+      block_size_ = 1;
+    }
 
     size_t num_blocks = std::ceil(
       static_cast<double>(vec_.size()) / static_cast<double>(block_size_));
